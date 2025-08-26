@@ -37,4 +37,15 @@ public class Order {
     public Set<Product> getProducts() {
         return products;
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                    - Order ID: %s
+                    - Order Date: %s
+                    - Delivery Date: %s
+                    - Status: %s
+                    - Products: %s
+                """, id, orderDate, deliveryDate, status, products);
+    }
 }

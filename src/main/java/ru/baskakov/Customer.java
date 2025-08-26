@@ -30,4 +30,12 @@ public class Customer {
     public Set<Order> getOrders() {
         return orders;
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                = Customer: id: %d, name: %s, level: %d 
+                  orders: %s
+                """, id, name, level, orders);
+    }
 }

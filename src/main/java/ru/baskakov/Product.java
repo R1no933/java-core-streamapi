@@ -30,4 +30,15 @@ public class Product {
     public BigDecimal getPrice() {
         return price;
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                                
+                                Product ID: %s
+                                Product Name: %s
+                                Product Category: %s
+                                Product Price: %s
+                """, id, name, category, price);
+    }
 }

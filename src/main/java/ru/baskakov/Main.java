@@ -20,7 +20,9 @@ public class Main {
          * Изменил 100 на 40, так как в ТЗ нет четких правил инициализации данных, по этому
          * нет ни одного товара из категории "Books" с ценой больше 100. */
 
-        List<Product> booksList = products.stream()
+        List<Product> booksList = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .filter(prdCat -> prdCat.getCategory().equals("Books")
                         && prdCat.getPrice().compareTo(new BigDecimal(40)) > 0)
                 .collect(Collectors.toList());
@@ -31,7 +33,8 @@ public class Main {
         /*Задание 2. Получите список заказов с продуктами из категории "Clothing".
          * Заменил "Children's products" на "Clothing" так как в ТЗ нет четких правил инициализации данных, по этому
          * нет ни одного товара из категории "Children's products"*/
-        List<Order> clothingList = orders.stream()
+        List<Order> clothingList = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getProducts().stream()
                         .anyMatch(prdCat -> prdCat.getCategory().equals("Clothing")))
                 .collect(Collectors.toList());
@@ -42,7 +45,9 @@ public class Main {
         /*Задание 3. Получите список продуктов из категории "Sports" и примените скидку 10% и получите сумму всех
          * продуктов.
          * Заменил "Toys" на "Sports"*/
-        BigDecimal totalPriceWithDiscount = products.stream()
+        BigDecimal totalPriceWithDiscount = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .filter(product -> product.getCategory().equals("Sports"))
                 .map(product -> new Product(
                         product.getId(),
@@ -71,7 +76,9 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 5. Получите топ 2 самые дешевые продукты из категории "Books".*/
-        List<Product> topCheapBooks = products.stream()
+        List<Product> topCheapBooks = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .filter(product -> product.getCategory().equals("Books"))
                 .sorted(Comparator.comparing(Product::getPrice))
                 .limit(2)
@@ -81,7 +88,8 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 6. Получите 3 самых последних сделанных заказа.*/
-        List<Order> lastOrders = orders.stream()
+        List<Order> lastOrders = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .sorted(Comparator.comparing(Order::getOrderDate))
                 .limit(3)
                 .collect(Collectors.toList());
@@ -93,7 +101,8 @@ public class Main {
         * список их продуктов.
         * Заменил дату.*/
         LocalDate currentDate = LocalDate.of(2025,8,28);
-        List<Product> nineteenSeptemberOrder = orders.stream()
+        List<Product> nineteenSeptemberOrder = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(currentDate))
                 .peek(order -> System.out.println("ID заказа(ов): " + order.getId()))
                 .flatMap(order -> order.getProducts().stream())
@@ -106,7 +115,8 @@ public class Main {
         * Заменил дату*/
         LocalDate start = LocalDate.of(2025,8,1);
         LocalDate end = LocalDate.of(2025,8,31);
-        BigDecimal totalAugustPrice = orders.stream()
+        BigDecimal totalAugustPrice = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -118,13 +128,15 @@ public class Main {
         /*Задание 9. Рассчитайте средний платеж по заказам, сделанным 02-сентября-2025.
         * Заменил дату*/
         LocalDate fourteenSeptember = LocalDate.of(2025,9,2);
-        BigDecimal totalPrice = orders.stream()
+        BigDecimal totalPrice = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(fourteenSeptember))
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Long countOrders = orders.stream()
+        Long countOrders = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(fourteenSeptember))
                 .count();
 
@@ -140,9 +152,11 @@ public class Main {
 
         /*Задание 10. Получите набор статистических данных (сумма, среднее, максимум, минимум, количество) для всех
         * продуктов категории "Books".*/
-        List<Product> bookList = products.stream()
+        List<Product> bookList = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .filter(product -> product.getCategory().equals("Books"))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
 
         BigDecimal sumPriceBook = bookList.stream()
                 .map(Product::getPrice)
@@ -174,7 +188,8 @@ public class Main {
         }
 
         /*Задание 11. Получите данные Map<Long, Integer> → key - id заказа, value - кол-во товаров в заказе*/
-        Map<Long, Integer> orderMapIdCount = orders.stream()
+        Map<Long, Integer> orderMapIdCount = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .collect(Collectors.toMap(Order::getId, order -> order.getProducts().size()));
 
         System.out.println("Вывод задания № 11:");
@@ -198,7 +213,8 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 13. Создайте Map<Order, Double> → key - заказ, value - общая сумма продуктов заказа.*/
-        Map<Order, Double> orderAndPriceMap = orders.stream()
+        Map<Order, Double> orderAndPriceMap = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
                 .collect(Collectors.toMap(
                         Function.identity(),
                         order -> order.getProducts().stream()
@@ -213,7 +229,9 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 14. Получите Map<String, List<String>> → key - категория, value - список названий товаров в категории*/
-        Map<String, List<String>> categoryAndCountMap = products.stream()
+        Map<String, List<String>> categoryAndCountMap = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .collect(Collectors.groupingBy(
                         Product::getCategory,
                         Collectors.mapping(Product::getName, Collectors.toList())
@@ -226,7 +244,9 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 15. Получите Map<String, Product> → самый дорогой продукт по каждой категории.*/
-        Map<String, Product> expensiveProductMap = products.stream()
+        Map<String, Product> expensiveProductMap = customers.stream()
+                .flatMap(customer -> customer.getOrders().stream())
+                .flatMap(order -> order.getProducts().stream())
                 .collect(Collectors.groupingBy(
                         Product::getCategory,
                         Collectors.collectingAndThen(

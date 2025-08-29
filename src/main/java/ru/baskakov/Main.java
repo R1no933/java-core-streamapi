@@ -49,22 +49,17 @@ public class Main {
                 .flatMap(customer -> customer.getOrders().stream())
                 .flatMap(order -> order.getProducts().stream())
                 .filter(product -> product.getCategory().equals("Sports"))
-                .map(product -> new Product(
-                        product.getId(),
-                        product.getName(),
-                        product.getCategory(),
-                        product.getPrice().multiply(new BigDecimal(0.9)).divide(new BigDecimal(1), 2, RoundingMode.FLOOR)
-                ))
-                .map(Product::getPrice)
+                .map(product -> product.getPrice().multiply(new BigDecimal(0.9)).divide(new BigDecimal(1), 2, RoundingMode.FLOOR)
+                )
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         System.out.println("Вывод задания № 3:");
         System.out.println("Общая цена товаров категории Sports со скидкой: " + totalPriceWithDiscount);
         System.out.println(SPLITTER);
 
         /*Задание 4. Получите список продуктов, заказанных клиентом второго уровня между 01-сент-2025 и 18-сент-2025.
-        * Заменнил даты.*/
-        LocalDate startDate = LocalDate.of(2025,9,1);
-        LocalDate endDate = LocalDate.of(2025,9,18);
+         * Заменнил даты.*/
+        LocalDate startDate = LocalDate.of(2025, 9, 1);
+        LocalDate endDate = LocalDate.of(2025, 9, 18);
         List<Product> betweenDateProductList = customers.stream()
                 .filter(customer -> customer.getLevel().equals(2L))
                 .flatMap(customer -> customer.getOrders().stream())
@@ -98,25 +93,25 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 7. Получите список заказов, сделанных 28-августа-2025, выведите id заказов в консоль и затем верните
-        * список их продуктов.
-        * Заменил дату.*/
-        LocalDate currentDate = LocalDate.of(2025,8,28);
-        List<Product> nineteenSeptemberOrder = customers.stream()
+         * список их продуктов.
+         * Заменил дату.*/
+        LocalDate currentDate = LocalDate.of(2025, 8, 28);
+        List<Order> nineteenSeptemberOrder = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(currentDate))
                 .peek(order -> System.out.println("ID заказа(ов): " + order.getId()))
-                .flatMap(order -> order.getProducts().stream())
                 .collect(Collectors.toList());
         System.out.println("Вывод задания № 7:");
         nineteenSeptemberOrder.forEach(System.out::println);
         System.out.println(SPLITTER);
 
         /*Задание 8. Рассчитайте общую сумму всех заказов, сделанных в августе 2025.
-        * Заменил дату*/
-        LocalDate start = LocalDate.of(2025,8,1);
-        LocalDate end = LocalDate.of(2025,8,31);
+         * Заменил дату*/
+        LocalDate start = LocalDate.of(2025, 8, 1);
+        LocalDate end = LocalDate.of(2025, 8, 31);
         BigDecimal totalAugustPrice = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
+                .filter(order -> order.getDeliveryDate().isAfter(start) || order.getDeliveryDate().isBefore(end))
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -126,32 +121,22 @@ public class Main {
         System.out.println(SPLITTER);
 
         /*Задание 9. Рассчитайте средний платеж по заказам, сделанным 02-сентября-2025.
-        * Заменил дату*/
-        LocalDate fourteenSeptember = LocalDate.of(2025,9,2);
-        BigDecimal totalPrice = customers.stream()
+         * Заменил дату*/
+        LocalDate fourteenSeptember = LocalDate.of(2025, 9, 2);
+        OptionalDouble average = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(fourteenSeptember))
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .mapToDouble(a -> a.doubleValue())
+                .average();
 
-        Long countOrders = customers.stream()
-                .flatMap(customer -> customer.getOrders().stream())
-                .filter(order -> order.getOrderDate().isEqual(fourteenSeptember))
-                .count();
-
-        try {
-            BigDecimal avgPrice = totalPrice.divide(new BigDecimal(countOrders), 2, RoundingMode.FLOOR);
-            System.out.println("Вывод задания № 9:");
-            System.out.println("Средняя цена заказов, сделанных 02-09-2025: " + avgPrice);
-            System.out.println(SPLITTER);
-        } catch (ArithmeticException e) {
-            System.out.println("Нет заказов в выбранной дате! (Делеине на 0)");
-            System.out.println(SPLITTER);
-        }
+        System.out.println("Вывод задания № 9:");
+        System.out.println("Средняя цена заказов, сделанных 02-09-2025: " + (average.isPresent() ? average.getAsDouble() : "0"));
+        System.out.println(SPLITTER);
 
         /*Задание 10. Получите набор статистических данных (сумма, среднее, максимум, минимум, количество) для всех
-        * продуктов категории "Books".*/
+         * продуктов категории "Books".*/
         List<Product> bookList = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
                 .flatMap(order -> order.getProducts().stream())
@@ -161,8 +146,6 @@ public class Main {
         BigDecimal sumPriceBook = bookList.stream()
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Long countOfBooks = bookList.stream().count();
 
         BigDecimal maxPriceOfBook = bookList.stream()
                 .map(Product::getPrice)
@@ -174,23 +157,27 @@ public class Main {
                 .min(BigDecimal::compareTo)
                 .orElse(BigDecimal.ZERO);
 
-        try {
-            BigDecimal avgBookPrice = sumPriceBook.divide(new BigDecimal(countOfBooks), 2, RoundingMode.FLOOR);
-            System.out.println("Вывод задания № 10:");
-            System.out.println("Общая сумма товаров категории Books: " + sumPriceBook);
-            System.out.println("Средняя цена товаров категории Books: " + avgBookPrice);
-            System.out.println("Максимальная цена товаров категории Books: " + maxPriceOfBook);
-            System.out.println("Минимальная цена товаров категории Books: " + minPriceOfBook);
-            System.out.println("Количество товаров категории Books: " + countOfBooks);
-            System.out.println(SPLITTER);
-        } catch (ArithmeticException e) {
-            System.out.println("Нет заказов в выбранной дате! (Делеине на 0)");
-        }
+        OptionalDouble avgBookPrice = bookList.stream()
+                .map(Product::getPrice)
+                .mapToDouble(a -> a.doubleValue())
+                .average();
+
+        long countOfBooks = bookList.stream().count();
+
+        System.out.println("Вывод задания № 10:");
+        System.out.println("Общая сумма товаров категории Books: " + sumPriceBook);
+        System.out.println("Средняя цена товаров категории Books: " + (avgBookPrice.isPresent() ? avgBookPrice.getAsDouble() : "0"));
+        System.out.println("Максимальная цена товаров категории Books: " + maxPriceOfBook);
+        System.out.println("Минимальная цена товаров категории Books: " + minPriceOfBook);
+        System.out.println("Количество товаров категории Books: " + countOfBooks);
+        System.out.println(SPLITTER);
+
 
         /*Задание 11. Получите данные Map<Long, Integer> → key - id заказа, value - кол-во товаров в заказе*/
         Map<Long, Integer> orderMapIdCount = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
-                .collect(Collectors.toMap(Order::getId, order -> order.getProducts().size()));
+                .collect(Collectors.toMap(Order::getId, order -> order.getProducts().size(),
+                        (existing, replacement) -> existing));
 
         System.out.println("Вывод задания № 11:");
         for (Map.Entry<Long, Integer> entry : orderMapIdCount.entrySet()) {
@@ -219,7 +206,8 @@ public class Main {
                         Function.identity(),
                         order -> order.getProducts().stream()
                                 .map(Product::getPrice)
-                                .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue()
+                                .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue(),
+                        (existing, replacement) -> existing
                 ));
 
         System.out.println("Вывод задания № 13:");

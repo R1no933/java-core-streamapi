@@ -111,7 +111,7 @@ public class Main {
          * Заменил дату*/
         BigDecimal totalSeptemberPrice = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
-                .filter(order -> order.getOrderDate().getMonth() == Month.SEPTEMBER)
+                .filter(order -> order.getOrderDate().getYear() == 2025 && order.getOrderDate().getMonth() == Month.SEPTEMBER)
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

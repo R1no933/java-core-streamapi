@@ -3,6 +3,7 @@ package ru.baskakov;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -92,32 +93,31 @@ public class Main {
         lastOrders.forEach(System.out::println);
         System.out.println(SPLITTER);
 
-        /*Задание 7. Получите список заказов, сделанных 28-августа-2025, выведите id заказов в консоль и затем верните
+        /*Задание 7. Получите список заказов, сделанных 04-сентября-2025, выведите id заказов в консоль и затем верните
          * список их продуктов.
          * Заменил дату.*/
-        LocalDate currentDate = LocalDate.of(2025, 8, 28);
-        List<Order> nineteenSeptemberOrder = customers.stream()
+        System.out.println("Вывод задания № 7:");
+        LocalDate currentDate = LocalDate.of(2025, 9, 4);
+        List<Order> fourSeptemberOrder = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
                 .filter(order -> order.getOrderDate().isEqual(currentDate))
-                .peek(order -> System.out.println("ID заказа(ов): " + order.getId()))
+                .peek(order -> {
+                    System.out.println("ID заказаа, сделанного в сентябре: " + order.getId());
+                })
                 .collect(Collectors.toList());
-        System.out.println("Вывод задания № 7:");
-        nineteenSeptemberOrder.forEach(System.out::println);
         System.out.println(SPLITTER);
 
-        /*Задание 8. Рассчитайте общую сумму всех заказов, сделанных в августе 2025.
+        /*Задание 8. Рассчитайте общую сумму всех заказов, сделанных в сентябре 2025.
          * Заменил дату*/
-        LocalDate start = LocalDate.of(2025, 8, 1);
-        LocalDate end = LocalDate.of(2025, 8, 31);
-        BigDecimal totalAugustPrice = customers.stream()
+        BigDecimal totalSeptemberPrice = customers.stream()
                 .flatMap(customer -> customer.getOrders().stream())
-                .filter(order -> order.getDeliveryDate().isAfter(start) || order.getDeliveryDate().isBefore(end))
+                .filter(order -> order.getOrderDate().getMonth() == Month.SEPTEMBER)
                 .flatMap(order -> order.getProducts().stream())
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         System.out.println("Вывод задания № 8:");
-        System.out.println("Общая сумма заказов в августе: " + totalAugustPrice);
+        System.out.println("Общая сумма заказов в сентябре: " + totalSeptemberPrice);
         System.out.println(SPLITTER);
 
         /*Задание 9. Рассчитайте средний платеж по заказам, сделанным 02-сентября-2025.
